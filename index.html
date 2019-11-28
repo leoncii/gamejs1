@@ -1,3 +1,263 @@
-<p>
-    asdsdasdsdasd
-</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Simon dice</title>
+</head>
+<body>
+
+   
+    
+    
+    <style>
+        
+    body{
+        margin: 0;
+        display: flex;
+        background: #dedede;
+        align-items: center;
+        height: 100vh;
+    }
+    .gameboard{
+        height: 100vh;
+        width: 100vh;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto;
+        max-width: 60vh;
+        max-height: 60vh;
+
+    }
+    .color{
+        width: 50%;
+        height: 50%;
+        display: inline-block;
+    }
+    .left{
+        float: left;
+    }
+    .right{
+        float: left;
+    }
+    .celeste{
+        background: #22a6b3;
+    }
+    .celeste.light{
+        background: #7ed6df;
+    }
+
+    .violeta{
+        background: #be2edd;
+    }
+    .violeta.light{
+        background: #e056fd;
+    }
+
+    .naranja{
+        background: #f0932b;
+    }
+    .naranja.light{
+        background: #ffbe76;
+    }
+    .verde{
+        background: #6ab04c;
+    }
+    .verde.light{
+        background: #badc58;
+    }
+
+    .btn-start{
+        width: 400px;
+        height: 100px;
+        background: #ecf0f1;
+        color: #2c3e50;
+        font-size: 2.5em;
+        position: absolute;
+        top: calc(50% - 50px);
+        left: calc(50% - 200px);
+    }
+
+    .hide{
+        display: none;
+    }
+    *{
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    </style>
+ <div class="gameboard">
+        <div class="color celeste left" data-color="celeste" id="celeste">
+
+        </div>
+        <div class="color violeta right" data-color="violeta" id="violeta">
+
+        </div>
+        <div class="color naranja left" data-color="naranja" id="naranja">
+
+        </div>
+        <div class="color verde right" data-color="verde" id="verde">
+
+        </div>
+            <button id="btnEmpezar" class="btn-start" onClick = "empezarJuego()">
+                Empezar juego!
+            </button>
+    </div>
+    
+    
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+    const celeste = document.getElementById('celeste')
+    const violeta = document.getElementById('violeta')
+    const naranja = document.getElementById('naranja')
+    const verde = document.getElementById('verde')
+    const btnEmpezar = document.getElementById('btnEmpezar')
+    const ULTIMO_NIVEL = 10
+
+
+    class Juego {
+        constructor(){
+            this.inicializar()
+            this.generarSecuencia()
+           this.siguienteNivel()
+        }
+
+
+        inicializar(){
+
+            this.togglebtnEmpezar()
+            this.nivel = 1
+            this.colores = {
+                celeste: celeste,
+                violeta: violeta,
+                naranja: naranja,
+                verde: verde
+            }
+        }
+
+        togglebtnEmpezar(){
+            if(btnEmpezar.classList.contains('hide')){
+                btnEmpezar.classList.remove('hide')
+            }else {
+                btnEmpezar.classList.add('hide')
+            }
+        }
+
+        generarSecuencia(){
+            this.secuencia = new Array(ULTIMO_NIVEL).fill(0).map(n => Math.floor(Math.random() * 4))
+            console.log(this.secuencia)
+        }
+
+
+        siguienteNivel(){
+            this.subNivel = 0
+            
+            this.iluminarSecuencia()
+            this.agregarEventosClick()
+
+        }
+
+        transformarNumeroAColor(num){
+            switch(num){
+                case 0 :
+                return 'celeste'
+                case 1 :
+                return 'violeta'
+                case 2 :
+                return 'naranja'
+                case 3 :
+                return 'verde'
+            }
+        }
+
+
+        transformarColorANumero(color){
+            switch(color){
+                case 'celeste' :
+                              return 0
+                case 'violeta' :
+                             return 1
+                case 'naranja' :
+                           return 2
+                case 'verde' :
+                          return 3
+            }
+        }
+
+        iluminarSecuencia(){
+            for (let i = 0; i < this.nivel; i++){
+                const color = this.transformarNumeroAColor(this.secuencia[i])
+                console.log(color)
+                setTimeout(() =>  this.iluminarColor(color),1000 * i)
+            }
+        }
+
+        iluminarColor(color){
+            this.colores[color].classList.add('light')
+            setTimeout(() => this.apagarColor(color),350)
+        }
+
+        apagarColor(color){
+            this.colores[color].classList.remove('light')
+        }
+
+        agregarEventosClick(){
+            this.colores.celeste.addEventListener('click',this.elegirColor.bind(this))
+            this.colores.violeta.addEventListener('click',this.elegirColor.bind(this))
+            this.colores.naranja.addEventListener('click',this.elegirColor.bind(this))
+            this.colores.verde.addEventListener('click',this.elegirColor.bind(this))
+        }
+
+        eliminarEventosClick(){
+            this.colores.celeste.removeEventListener('click',this.elegirColor.bind(this))
+            this.colores.violeta.removeEventListener('click',this.elegirColor.bind(this))
+            this.colores.naranja.removeEventListener('click',this.elegirColor.bind(this))
+            this.colores.verde.removeEventListener('click',this.elegirColor.bind(this))
+            
+        }
+
+        elegirColor(ev){
+            const nombreColor = ev.target.dataset.color
+            const numeroColor = this.transformarColorANumero(nombreColor)
+            this.iluminarColor(nombreColor)
+            if(numeroColor === this.secuencia[this.subNivel]){
+                this.subNivel++
+                if(this.subNivel === this.nivel){
+                    this.nivel++
+                    this.eliminarEventosClick()
+                    if (this.nivel === (ULTIMO_NIVEL + 1)){
+                        this.ganoElJuego()
+                    }else{
+                       setTimeout(this.siguienteNivel.bind(this), 1500)
+                    }
+                } 
+            } else {
+                this.eliminarEventosClick()
+
+                 
+
+            }
+        }
+
+        ganoElJuego(){
+            swal('Platzi' , 'felicitaciones, ganaste el juego!', 'succes')
+            .then(this.inicializar.bind(this))
+        }
+
+        perdioElJuego(){
+            swal('Platzi' , 'pena penita, perdiste el juego!', 'error')
+            .then(()=>{
+                setTimeout(this.inicializar.bind(this), 1200)
+            })
+        }
+
+    }
+
+    function empezarJuego(){
+        window.juego = new Juego()
+    }
+    </script>
+
+</body>
+</html>
